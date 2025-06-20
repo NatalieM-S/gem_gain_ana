@@ -75,12 +75,25 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
     plt.plot(x, y, drawstyle='steps-mid', label='Data')
     plt.plot(x, fit_y, 'r--', label=f'5.9 keV Fit\n$\\mu$={popt[1]:.1f}, $\\sigma$={popt[2]:.1f}')
     plt.axvspan(fitmin, fitmax, color='Red', alpha=0.1, label='Fit range')
-    
-    mask_fixed = (x >= 112) & (x <= 120) ## CG 10 FG 0.5
-    #mask_fixed = (x >= 600) & (x <= 650) ## CG 50 FG 0.5
+
+    ## CG 10 FG 0.5 of strip
+    #pulser_x_min = 112
+    #pulser_x_max = 120
+
+    ## CG 10 FG 0.5 of pad
+    pulser_x_min = 225
+    pulser_x_max = 245
+
+    ## CG 50 FG 0.5 strip
+    #pulser_x_min = 600
+    #pulser_x_max = 650
+
+    mask_fixed = (x >= pulser_x_min) & (x < pulser_x_max)
 
     x_fixed = x[mask_fixed]
     y_fixed = y[mask_fixed]
+
+    ratio_mu = 0.
 
     if len(x_fixed) > 3:
         a1 = np.max(y_fixed)
@@ -114,7 +127,7 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
     #plt.text(0.97, 0.95, param_text, transform=plt.gca().transAxes,
     #         verticalalignment='top', horizontalalignment='right',
     #         fontsize=10, bbox=dict(boxstyle="round,pad=0.3", facecolor='white', alpha=0.5))
-    plt.axvspan(112, 120, color='green', alpha=0.1, label='Fit Range')
+    plt.axvspan(pulser_x_min, pulser_x_max, color='green', alpha=0.1, label='Fit Range')
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
