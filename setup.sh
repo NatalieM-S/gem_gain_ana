@@ -1,4 +1,6 @@
-export GEM_WORKING_DIR=`pwd`
-#export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$GEM_WORKING_DIR/include/
+#!/bin/bash
+# Linux source script for gem_gain_ana
+# Usage: source setup.sh 
 
-export GAIN_DATA_DIR=/Users/sungbino/Study/FNAL/DUNE/ND/NDGar/GEM/gain_data/
+export GEM_WORKING_DIR=`pwd`
+export GAIN_DATA_DIR="$GEM_WORKING_DIR/gain_data"

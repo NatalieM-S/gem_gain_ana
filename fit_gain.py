@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 import argparse
 import numpy as np
 from scipy.optimize import curve_fit
+from pathlib import Path
+
+GAIN_DATA_DIR = None  #default: cwd + "\gain_data"
+GEM_WORKING_DIR = None  # default: cwd
 
 def parse_filename_info(filename):
     name = os.path.splitext(os.path.basename(filename))[0]
@@ -140,29 +144,46 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Draw histogram from .Spe file")
-    parser.add_argument("-i", "--input", required=True, help="Name of the .Spe file (e.g., myfile.Spe)")
-    parser.add_argument("-d", "--date", required=True, help="Subdirectory name under $GAIN_DATA_DIR and $GEM_WORKING_DIR/output")
+    #parser.add_argument("-i", "--input", required=True, help="Name of the .Spe file (e.g., myfile.Spe)")
+    parser.add_argument("-d", "--date", required=True, help="Subdirectory name under gain_data/")
+    parser.add_argument("-i", "--input", default=None, help="Name of the .Spe file (e.g., myfile.Spe)")
     parser.add_argument("--xmax", type=int, default=8200, help="Set upper limit for x-axis")
     parser.add_argument("--fitmin", type=int, default=0, help="Minimum x value for fit")
     parser.add_argument("--fitmax", type=int, default=8200, help="Maximum x value for fit")
-    parser.add_argument("--muinit", type=float, default=None, help="Initial guess for Gaussian mean (mu)")
-    parser.add_argument("--sigmainit", type=float, default=None, help="Initial guess for Gaussian sigma")
+    parser.add_argument("--muinit", type=float, default=720, help="Initial guess for Gaussian mean (mu)")
+    parser.add_argument("--sigmainit", type=float, default=100, help="Initial guess for Gaussian sigma")
     args = parser.parse_args()
 
-    # Load env variables
-    gain_data_dir = os.environ.get("GAIN_DATA_DIR")
-    gem_working_dir = os.environ.get("GEM_WORKING_DIR")
-    if gain_data_dir is None or gem_working_dir is None:
-        raise EnvironmentError("GAIN_DATA_DIR or GEM_WORKING_DIR is not set.")
-
-    # Full input file path
-    input_path = os.path.join(gain_data_dir, args.date, args.input)
-
-    # Output plot path
-    input_name_wo_ext = os.path.splitext(args.input)[0]
-    output_path = os.path.join(gem_working_dir, "output", args.date, f"{input_name_wo_ext}.pdf")
-
-    # run info
-    param_text = parse_filename_info(args.input)
+    # Use input, env var or default paths
+    data_dir = GAIN_DATA_DIR or os.environ.get("GAIN_DATA_DIR")
+    cwd = GEM_WORKING_DIR or os.environ.get("GEM_WORKING_DIR")
     
-    draw_spec_histogram(input_path, output_path, param_text, xmax=args.xmax, fitmin=args.fitmin, fitmax=args.fitmax, muinit=args.muinit, sigmainit=args.sigmainit)
+    # use default if not set
+    if not cwd:
+        #cwd = Path.cwd()
+        cwd = Path(__file__).resolve().parent
+    if not data_dir:
+        data_dir = cwd/"gain_data"
+    if data_dir.is_dir():
+        subdir = data_dir / args.date
+        #spe_files = list(data_dir.glob("**/*.Spe"))
+        spe_files = list(subdir.glob("*.Spe"))
+        print(f"{len(spe_files)} .Spe files found in /{args.date}/")
+    else:
+        raise FileNotFoundError('gain data directory not found at cwd/gain_data')
+
+    if args.input:
+        spe_files=[args.input]
+    for input in spe_files:
+        # Full input file path
+        input_path = os.path.join(data_dir, args.date, input)
+
+        # Output plot path
+        input_name_wo_ext = os.path.splitext(input)[0]
+        rel_path = os.path.relpath(input_path,data_dir)[0:-4]
+        #output_path = os.path.join(cwd, "output", args.date, f"{input_name_wo_ext}.pdf")
+        output_path = os.path.join(cwd, "output", f"{rel_path}.pdf")
+        # run info
+        param_text = parse_filename_info(input)
+        
+        draw_spec_histogram(input_path, output_path, param_text, xmax=args.xmax, fitmin=args.fitmin, fitmax=args.fitmax, muinit=args.muinit, sigmainit=args.sigmainit)
