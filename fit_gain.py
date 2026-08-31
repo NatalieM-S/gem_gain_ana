@@ -28,6 +28,21 @@ def parse_filename_info(filename):
     except Exception:
         return "Parameter info not parsed"
 
+def initialize_paths(date, data_dir = None, cwd = None):
+    # use default if not set
+    if not cwd:
+        cwd = Path(__file__).resolve().parent
+    if not data_dir:
+        data_dir = cwd/"gain_data"
+    if data_dir.is_dir():
+        subdir = data_dir / date
+        spe_files = list(subdir.glob("*.Spe"))
+        print(f"{len(spe_files)} .Spe files found in /{date}/")
+    else:
+        raise FileNotFoundError('gain data directory not found at cwd/gain_data')
+
+    return cwd, data_dir, spe_files
+
 def gaussian(x, a, mu, sigma):
     return a * np.exp(- (x - mu)**2 / (2 * sigma**2))
 
@@ -57,6 +72,16 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
 
     x = np.arange(first_bin, last_bin + 1)
     y = np.array(counts)
+    if not muinit:
+        muinit = get_points(x,y,0)
+    if not sigmainit:
+        sigmainit = get_points(x,y,1)
+    if not xmax:
+        xmax = get_points(x,y,2)
+    if not fitmin:
+        fitmin = get_points(x,y,3)
+    if not fitmax:
+        fitmax = get_points(x,y,4)
 
     mask = (x >= fitmin) & (x <= fitmax)
     x_fit = x[mask]
@@ -64,6 +89,7 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
     
     # Fit Gaussian the 5.9 keV peak
     a0 = np.max(y)
+    
     mu0 = muinit
     sigma0 = sigmainit
     try:
@@ -72,7 +98,6 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
     except RuntimeError:
         popt = [0, 0, 0]
         fit_y = np.zeros_like(x)
-
         
     # Plot
     plt.figure(figsize=(10, 5))
@@ -118,7 +143,7 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
 
     except RuntimeError:
         pass
-
+    
     plt.xlim(0., xmax)
     plt.xlabel("Channels [ADC]")
     plt.ylabel("Counts")
@@ -142,6 +167,49 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
     print(f"Plot saved to {output_path}")
     plt.close()
 
+def get_points(x,y,mode):
+    title=["mean of fit (muinit)","spread of fit (sigmainit)","plot max (xmax)","lower fit bound (fitmin)","upper fit bound (fitmax)"]
+
+
+        #    muinit = get_points(x,y,0)
+        #    sigmainit = get_points(x,y,1)
+        #    xmax = get_points(x,y,2)
+         #   fitmin = get_points(x,y,3)
+       #  fitmax = get_points(x,y,4)
+       #todo: group these (min/max, mu/sig)
+       #todo: add calc for sigma based on selection that is abs (mu selection - sigma selection (in calling fx, not here))
+       #todo: test this fx and see if it works
+
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(x, y, drawstyle='steps-mid', label='Data') 
+    plt.title(f"Select {title[mode]}")
+    while True:
+        plt.show()
+        points = plt.ginput(1)
+        if not points:break
+        xpt, ypt = points[0]
+        plt.close()
+        confirm = input(f"Selected ({xpt:.2f}, {ypt:.2f}). Is this correct? (y/n): ").lower()
+        if confirm == "y":
+            if mode in []
+            return xpt,ypt
+    
+def full_routine(input, date, xmax, fitmin, fitmax, muinit, sigmainit, data_dir = None, cwd = None):
+    cwd, data_dir, spe_files = initialize_paths(date, data_dir, cwd)
+    if input:
+        spe_files=[input]
+    for input in spe_files:
+        # Full input file path
+        input_path = os.path.join(data_dir, date, input)
+        # Output plot path
+        rel_path = os.path.relpath(input_path,data_dir)[0:-4]
+        output_path = os.path.join(cwd, "output", f"{rel_path}.pdf")
+        # run info
+        param_text = parse_filename_info(input)
+        
+        draw_spec_histogram(input_path, output_path, param_text, xmax=xmax, fitmin=fitmin, fitmax=fitmax, muinit=muinit, sigmainit=sigmainit)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Draw histogram from .Spe file")
     #parser.add_argument("-i", "--input", required=True, help="Name of the .Spe file (e.g., myfile.Spe)")
@@ -155,35 +223,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Use input, env var or default paths
+    #todo: remove or implement input option here
     data_dir = GAIN_DATA_DIR or os.environ.get("GAIN_DATA_DIR")
     cwd = GEM_WORKING_DIR or os.environ.get("GEM_WORKING_DIR")
+
     
-    # use default if not set
-    if not cwd:
-        #cwd = Path.cwd()
-        cwd = Path(__file__).resolve().parent
-    if not data_dir:
-        data_dir = cwd/"gain_data"
-    if data_dir.is_dir():
-        subdir = data_dir / args.date
-        #spe_files = list(data_dir.glob("**/*.Spe"))
-        spe_files = list(subdir.glob("*.Spe"))
-        print(f"{len(spe_files)} .Spe files found in /{args.date}/")
-    else:
-        raise FileNotFoundError('gain data directory not found at cwd/gain_data')
-
-    if args.input:
-        spe_files=[args.input]
-    for input in spe_files:
-        # Full input file path
-        input_path = os.path.join(data_dir, args.date, input)
-
-        # Output plot path
-        input_name_wo_ext = os.path.splitext(input)[0]
-        rel_path = os.path.relpath(input_path,data_dir)[0:-4]
-        #output_path = os.path.join(cwd, "output", args.date, f"{input_name_wo_ext}.pdf")
-        output_path = os.path.join(cwd, "output", f"{rel_path}.pdf")
-        # run info
-        param_text = parse_filename_info(input)
-        
-        draw_spec_histogram(input_path, output_path, param_text, xmax=args.xmax, fitmin=args.fitmin, fitmax=args.fitmax, muinit=args.muinit, sigmainit=args.sigmainit)
+    full_routine(args.input, args.date, args.xmax, args.fitmin, args.fitmax, args.muinit, args.sigmainit, data_dir, cwd)
+   
+    
