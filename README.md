@@ -68,13 +68,18 @@ todo: either allow for vector inputs or manual guesses you can input by clicking
 
 ## Data Format
 Input data files are .Spe   
-Filenames encode expt parameters
+Filenames encode expt parameters  
+Filenames were irregular and have been regularized using regularize_filenames.py   
+May not be complete, but sufficient for existing dataset  
+
 ```
-<V Drift>D_
-<V GEM>G_
-<Gas mix ratio>_
+D<V Drift>_
+G<V GEM>_
+Gas_<Gas mix ratio>_
 CG<coarse gain>_
-FG<fine gain>.Spe
+FG<fine gain>
+psi<pressure>.Spe
 
 Example: 3600D_3000G_90-10_CG10_FG0p5.Spe
 ```
+Note that pressure and other details may be encoded in the parent folder names or the external data log. Working on consolidating this in one location. 
