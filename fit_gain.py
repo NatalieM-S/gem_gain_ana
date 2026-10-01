@@ -58,7 +58,7 @@ def gauss_plus_pol2(x, a, mu, sigma, c0, c1, c2):
     poly = c0 + c1 * x + c2 * x**2
     return gauss + poly
 
-def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax, muinit=720, sigmainit=100):
+def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax, muinit=720, sigmainit=100, skip_confirm=False):
     counts = []
 
     with open(filepath, 'r') as f:
@@ -82,17 +82,17 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
 
     ## Generate fit parameters for main peak (5.9 keV)
     if muinit is None or sigmainit is None:
-        points = get_points(x,y,0)
+        points = get_points(x,y,0,skip_confirm)
         if muinit is None:
             muinit = points[0]
         if sigmainit is None:
             sigmainit = abs(points[0] - points[1])
     if xmax is None:
-        #points = get_points(x,y,1)
+        #points = get_points(x,y,1,skip_confirm)
         #xmax = points[0]
         xmax = 8200 #Best to just use default here
     if fitmin is None or fitmax is None:
-        points = get_points(x,y,2)
+        points = get_points(x,y,2,skip_confirm)
         if fitmin is None:
             fitmin = min(points)#[0], points[1])
         if fitmax is None:
@@ -179,7 +179,7 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
     print(f"Plot saved to {output_path}")
     plt.close()
 
-def get_points(x,y,mode):
+def get_points(x,y,mode,skip_confirm=False):
     title=["mean and spread of fit (mu, mu +- sigma)","plot max (xmax)","fit bounds (fitmin, fitmax)"]
     point_count=[2,1,2]
     last_nonzero = np.nonzero(y)[0][-1]
@@ -192,13 +192,15 @@ def get_points(x,y,mode):
         if len(points) != point_count[mode]:
             plt.close()
             return None
-        selected = ", ".join(f"({xpt:.0f})" for xpt, _ in points)
-        confirm = input(f"Selected {selected}. Is this correct? (y/n): ").lower()
+        confirm='y'
+        if not skip_confirm:
+            selected = ", ".join(f"({xpt:.0f})" for xpt, _ in points)
+            confirm = input(f"Selected {selected}. Is this correct? (y/n): ").lower()
         if confirm == "y":
             plt.close()
             return tuple(xpt for xpt, _ in points)
     
-def full_routine(input, date, xmax, fitmin, fitmax, muinit, sigmainit, data_dir = None, cwd = None):
+def full_routine(input, date, xmax, fitmin, fitmax, muinit, sigmainit, data_dir = None, cwd = None, skip_confirm=False):
     cwd, data_dir, spe_files = initialize_paths(date, data_dir, cwd)
     if input:
         spe_files=[input]
@@ -211,7 +213,7 @@ def full_routine(input, date, xmax, fitmin, fitmax, muinit, sigmainit, data_dir 
         # run info
         param_text = parse_filename_info(input)
         
-        draw_spec_histogram(input_path, output_path, param_text, xmax=xmax, fitmin=fitmin, fitmax=fitmax, muinit=muinit, sigmainit=sigmainit)
+        draw_spec_histogram(input_path, output_path, param_text, xmax, fitmin, fitmax, muinit, sigmainit, skip_confirm)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Draw histogram from .Spe file")

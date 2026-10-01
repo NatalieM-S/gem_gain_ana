@@ -1,0 +1,31 @@
+,,,,,,,
+Date (mm/dd/yy),Source Position,Gas Mixture,Drift Voltage (V),GEM Voltage (V),Coarse gain,Fine gain,Notes
+08/26/25,Before Adjustment,Ar-CH4 92-8,3050,2550,20,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3100,2600,20,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3150,2650,10,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3200,2700,5,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3250,2750,5,0.5,pulser amp 216
+08/26/25,Before Adjustment,Ar-CH4 92-8,3300,2800,5,0.5,pulser amp 216
+08/26/25,Before Adjustment,Ar-CH4 92-8,3350,2850,5,0.5,pulser returned to 116 mVpp
+08/26/25,Before Adjustment,Ar-CH4 92-8,3400,2900,5,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3450,2950,5,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3500,3000,5,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3550,3050,5,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3600,3100,5,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3650,3150,5,0.5,
+08/26/25,Before Adjustment,Ar-CH4 92-8,3700,3200,5,0.5,strange peak at low ADC
+08/26/25,Before Adjustment,Ar-CH4 92-8,3700,3200,5,0.5,retake
+08/26/25,After Adjustment,Ar-CH4 92-8,3050,2550,20,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3100,2600,20,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3150,2650,10,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3200,2700,10,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3250,2750,5,0.5,pulser amp 166 mVpp
+08/26/25,After Adjustment,Ar-CH4 92-8,3300,2800,5,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3350,2850,5,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3400,2900,5,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3450,2950,5,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3500,3000,5,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3550,3050,5,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3600,3100,5,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3650,3150,5,0.5,
+08/26/25,After Adjustment,Ar-CH4 92-8,3700,3200,5,0.5,

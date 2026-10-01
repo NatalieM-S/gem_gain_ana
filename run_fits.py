@@ -42,13 +42,23 @@ date = "5-28-2025"
 #date = "8-2-2025"
 #notes: error in title, says 92-10 arco2, obviously not correct
 #
-##################
-date = "8-11-2025"
-#notes:
 
+# SKIPPED A COUPLE...
+
+##################
+basedate = "8-21-2025"
+#date=basedate+'/pulser_runs/116mVpp'
+#date=basedate+'/pulser_runs/166mVpp'
+date=basedate+'/pulser_runs/222mVpp'
+#notes: calibrations are stored in output
+##################
+basedate = "8-20-2025"
+date=basedate+"/22.0"
 #input = "3600D_3050G_90-10_CG10_FG0p5.Spe"#Use file name
 cwd, data_dir, spe_files = initialize_paths(date)
-#input = spe_files[3]# use file from list
+for n in range(len(spe_files)):
+    print(n,spe_files[n])
+#input = spe_files[2]# use file from list
 input = None #run thru full folder
 
 xmax=8200 #For right bound of plot only, doesn't edit data
@@ -58,4 +68,5 @@ muinit=720
 sigmainit=100
 
 #full_routine(input, date, None,None,None,None,None)
-full_routine(input, date, xmax,fitmin,fitmax,muinit,sigmainit)
+#full_routine(input, date, xmax,fitmin,fitmax,muinit,sigmainit)
+full_routine(input, date, 1000,None,1000,None,None,skip_confirm=True)
