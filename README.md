@@ -6,19 +6,19 @@ cd gem_gain_ana
 ~~python setup.py~~ not needed anymore
 ### Linux Setup
 cd gem_gain_ana  
-setup.sh
+source setup.sh
 
-todo: test without setup.sh on linux
+todo: test w/+ w/out setup.sh on linux
 
 ## run
-python fit_gain.py -d 5-7-2025 -i 3600D_3000G_90-10_CG10_FG0p5.Spe --xmax 1200 --fitmin 650 --fitmax 1000
+python fit_gain.py -d 5-7-2025 -i D3600_G3000_~_90-10_CG10_FG0p5_psi~.Spe --xmax 1200 --fitmin 650 --fitmax 1000
 
-Plots are saved to `/output/<date>/<filename>.pdf`
+Plots are saved to `/output/<date>/s`
 
 ## layout
 ```
 gain_data/          # Input data
-results/            # Saved outputs 
+output/             # Saved outputs 
 fit_gain.py         # analysis script
 draw_HV_vs_gain_overlay.py  # Plotting 
 ```
@@ -38,33 +38,36 @@ Required:
  
 
 Analysis:
-  -i, --input FILE        data filename (ex: 3600D_3000G_90-10_CG10_FG0p5.Spe), leave blank to analyze full folder
+  -i, --input FILE        data filename(s) (ex: D3600_G3000_~_90-10_CG10_FG0p5_psi~.Spe), leave blank to analyze full folder
 
   --xmax INT              X-axis upper limit (default: 8200)
   --fitmin INT            Min channel for peak fit (default: 0)
   --fitmax INT            Max channel for peak fit (default: 8200)
   --muinit FLOAT          Initial Gaussian mean guess (default: 720)
   --sigmainit FLOAT       Initial Gaussian sigma guess (default: 100)
+  --auto                  Auto generate fit parameters. If not used: Select fit parameters interactively on graph
+  --pulser-min FLOAT      (optional) lower bound for pulser search
+  --pulser-max FLOAT      (optional) upper bound for pulser search
 ```
 
 ### Examples
 
 Single file
 ```
-python fit_gain.py -d 5-7-2025 -i 3600D_3000G_90-10_CG10_FG0p5.Spe
+python fit_gain.py -d 5-7-2025 -i D3600_G3000_~_90-10_CG10_FG0p5_psi~.Spe
 ```
 
 With fit range
 ```
-python fit_gain.py -d 5-7-2025 -i 3600D_3050G_90-10_CG10_FG0p5.Spe --xmax 1500 --fitmin 900 --fitmax 1400 --muinit 1100 --sigmainit 80
+python fit_gain.py -d 5-7-2025 -i D3600_G3050_~_90-10_CG10_FG0p5_psi~.Spe --xmax 1500 --fitmin 900 --fitmax 1400 --muinit 1100 --sigmainit 80
 ```
 
 Batch process all files in a date folder:
 ```
 python fit_gain.py -d 5-7-2025 
-
+todo: make this work for subfolders in date folders too
 ```
-todo: either allow for vector inputs or manual guesses you can input by clicking on graph or by inputting while viewing graph or better fitting algorithm... 
+Can input >=1 filenames after `-i`. Use `--auto` to generate fits automatically (Work in progress), otherwise click the plot to generate input parameters. Fit vals and log details are saved to `output/fit_results.csv`. 
 
 ## Data Format
 Input data files are .Spe   
@@ -80,6 +83,6 @@ CG<coarse gain>_
 FG<fine gain>
 psi<pressure>.Spe
 
-Example: 3600D_3000G_90-10_CG10_FG0p5.Spe
+Example: D3050_G2550_ArCH4_92-8_CG20_FG0p5_psi14p5.Spe
 ```
-Note that pressure and other details may be encoded in the parent folder names or the external data log. Working on consolidating this in one location. 
+

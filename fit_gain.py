@@ -50,17 +50,8 @@ def initialize_paths(date, data_dir = None, cwd = None):
 
     return cwd, data_dir, spe_files
 
-def gaussian(x, a, mu, sigma):
-    return a * np.exp(- (x - mu)**2 / (2 * sigma**2))
-
-def gauss_plus_pol2(x, a, mu, sigma, c0, c1, c2):
-    gauss = a * np.exp(- (x - mu)**2 / (2 * sigma**2))
-    poly = c0 + c1 * x + c2 * x**2
-    return gauss + poly
-
-def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax, muinit=720, sigmainit=100, skip_confirm=False):
+def _read_spectrum(filepath):
     counts = []
-
     with open(filepath, 'r') as f:
         for line in f:
             if "$DATA:" in line:
@@ -71,14 +62,23 @@ def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax,
 
         for line in f:
             line = line.strip()
-            if not line:
-                continue
-            counts.append(int(line))
+            if line:
+                counts.append(int(line))
             if len(counts) >= nbins:
                 break
+            
+    return np.arange(first_bin, last_bin + 1), np.array(counts, dtype=float)
 
-    x = np.arange(first_bin, last_bin + 1)
-    y = np.array(counts)
+def gaussian(x, a, mu, sigma):
+    return a * np.exp(- (x - mu)**2 / (2 * sigma**2))
+
+def gauss_plus_pol2(x, a, mu, sigma, c0, c1, c2):
+    gauss = a * np.exp(- (x - mu)**2 / (2 * sigma**2))
+    poly = c0 + c1 * x + c2 * x**2
+    return gauss + poly
+
+def draw_spec_histogram(filepath, output_path, param_text, xmax, fitmin, fitmax, muinit=720, sigmainit=100, skip_confirm=False):
+    x, y = _read_spectrum(filepath)
 
     ## Generate fit parameters for main peak (5.9 keV)
     if muinit is None or sigmainit is None:
@@ -221,10 +221,12 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--date", required=True, help="Subdirectory name under gain_data/")
     parser.add_argument("-i", "--input", default=None, help="Name of the .Spe file (e.g., myfile.Spe)")
     parser.add_argument("--xmax", type=int, default=8200, help="Set upper limit for x-axis")
-    parser.add_argument("--fitmin", type=int, default=0, help="Minimum x value for fit")
-    parser.add_argument("--fitmax", type=int, default=8200, help="Maximum x value for fit")
-    parser.add_argument("--muinit", type=float, default=720, help="Initial guess for Gaussian mean (mu)")
-    parser.add_argument("--sigmainit", type=float, default=100, help="Initial guess for Gaussian sigma")
+    parser.add_argument("--fitmin", type=int, default=None, help="Min x val for fit")#default=0
+    parser.add_argument("--fitmax", type=int, default=None, help="Max x val for fit")#default=8200
+    parser.add_argument("--muinit", type=float, default=None, help="Initial guess for Gaussian mean (mu)")#default=720
+    parser.add_argument("--sigmainit", type=float, default=None, help="Initial guess for Gaussian sigma")#default=100
+    #parser.add_argument("--auto", action="store_true", help="Auto select params (WIP)")
+
     args = parser.parse_args()
 
     # Use input, env var or default paths
@@ -232,6 +234,6 @@ if __name__ == "__main__":
     cwd = GEM_WORKING_DIR or os.environ.get("GEM_WORKING_DIR")
 
     
-    full_routine(args.input, args.date, args.xmax, args.fitmin, args.fitmax, args.muinit, args.sigmainit, data_dir, cwd)
+    full_routine(args.input, args.date, args.xmax, args.fitmin, args.fitmax, args.muinit, args.sigmainit, data_dir, cwd, skip_confirm = False)
    
     
